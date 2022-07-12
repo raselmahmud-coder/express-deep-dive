@@ -1,0 +1,17 @@
+{
+  "name": "express-explore",
+  "version": "0.0",
+  "description": "just go drive",
+  "main": "server.js",
+  "author": "rasel",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "ejs": "^3.1.8",
+    "express": "^4.18.1",
+    "multer": "^1.4.5-lts.1"
+  }
+}
