@@ -4,16 +4,37 @@ const todoSchema = require("../schemas/todoSchema");
 const router = express.Router();
 
 const Todo = new mongoose.model("Todo", todoSchema);
+// static method class concept using here
+router.get("/hello", async (req, res) => {
+  const result = await Todo.findHello();
+  console.log(result);
+  res.send(result);
+});
+// query helper
+router.get("/protocol", async (req, res) => {
+  const result = await Todo.find().getProtocol("http");
+  console.log(result);
+  res.send(result);
+});
+// instance method using for getting data
+router.get("/active", async (req, res) => {
+  const todo = new Todo();
+  const result = await todo.findActive();
+  console.log("hello result", result);
+  res.send(result);
+});
+
 router.get("/", async (req, res) => {
-  const result = await Todo.find({});
+  const result = await Todo.find({}).skip(3).limit(2);
   res.send(result);
 });
 router.get("/:id", (req, res) => {
   const { id } = req.params;
   Todo.findOne({ _id: id })
-    .select({ _id: 0, __v: 0 })//hide some column using select
+    .select({ _id: 0, __v: 0 }) //hide some column using select
     .then((data) => res.send(data));
 });
+
 router.post("/", async (req, res) => {
   const newTodo = new Todo(req.body);
   await newTodo.save((err) => {

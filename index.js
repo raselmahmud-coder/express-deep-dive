@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const todoHandler = require('./routerHandlers/todoHandler');
+const userHandler = require('./routerHandlers/userHandler');
 const app = express();
 app.use(express.json());
 // database connection is here
@@ -10,6 +11,7 @@ mongoose
   .catch((err) => console.log("error", err));
 // create a route for todo
 app.use("/todo", todoHandler)
+app.use("/user", userHandler)
 // error handling fn
 function errorHandler(err, req, res, next) {
   if (res.headersSent) {

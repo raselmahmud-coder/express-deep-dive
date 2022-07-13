@@ -8,7 +8,7 @@ const todoSchema = mongoose.Schema({
   description: String,
   status: {
     type: String,
-    required:true,
+    required: true,
     enum: ["active", "inactive"],
   },
   date: {
@@ -16,4 +16,23 @@ const todoSchema = mongoose.Schema({
     default: Date.now,
   },
 });
+// this define instance method
+todoSchema.methods = {
+  findActive: () => {
+    return mongoose.model("Todo").find({ status: "active" });
+  },
+};
+// this define static method
+todoSchema.statics = {
+  findHello: function () {
+    return this.find({ title: /hello/i });
+  },
+};
+// query helper method
+todoSchema.query = {
+  getProtocol(protocol) {
+    return this.find({ title: new RegExp(protocol, "i") });
+  },
+};
+
 module.exports = todoSchema;
