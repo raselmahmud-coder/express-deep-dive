@@ -18,5 +18,11 @@ const userSchema = mongoose.Schema({
     required: true,
     enum: ["active", "inactive"],
   },
+  todos: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: "Todo",
+    },
+  ],
 });
 module.exports = userSchema;

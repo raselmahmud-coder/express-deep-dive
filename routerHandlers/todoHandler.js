@@ -1,8 +1,11 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const checkLogin = require("../Middlewares/checkLogin");
 const todoSchema = require("../schemas/todoSchema");
+const userSchema = require("../schemas/userSchema");
 const router = express.Router();
 
+const User = new mongoose.model("User", userSchema);
 const Todo = new mongoose.model("Todo", todoSchema);
 // static method class concept using here
 router.get("/hello", async (req, res) => {
@@ -24,9 +27,18 @@ router.get("/active", async (req, res) => {
   res.send(result);
 });
 
-router.get("/", async (req, res) => {
-  const result = await Todo.find({}).skip(3).limit(2);
-  res.send(result);
+router.get("/", checkLogin, (req, res) => {
+  Todo.find({})
+    .select({
+      __v: 0,
+      _id: 0,
+    })
+    .populate("user", "name userName status -_id")
+    .exec(function (err, result) {
+      if (err) return handleError(err);
+      console.log("The user is %s", result);
+      res.send(result);
+    });
 });
 router.get("/:id", (req, res) => {
   const { id } = req.params;
@@ -35,16 +47,25 @@ router.get("/:id", (req, res) => {
     .then((data) => res.send(data));
 });
 
-router.post("/", async (req, res) => {
-  const newTodo = new Todo(req.body);
-  await newTodo.save((err) => {
-    if (err) {
-      console.log(err);
-      res.status(500).json({ error: "there was a server side error" });
-    } else {
-      res.status(200).json({ message: "successfully added a record" });
-    }
-  });
+router.post("/", checkLogin, async (req, res) => {
+  try {
+    const newTodo = new Todo({
+      ...req.body,
+      user: req.userId,
+    });
+    const todo = await newTodo.save();
+    await User.updateOne(
+      { _id: req.userId },
+      {
+        $push: {
+          todos: todo._id,
+        },
+      }
+    );
+    res.send(todo)
+  } catch (error) {
+    console.log("error occurred" + error);
+  }
 });
 router.post("/all", async (req, res) => {
   console.log(req.body);
